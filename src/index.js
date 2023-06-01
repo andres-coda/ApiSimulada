@@ -1,4 +1,4 @@
-const url = `/647685309233e82dd53a1789.mockapioMeGustaEsteMudo/lossatelites`;
+const url = `https://647685309233e82dd53a1789.mockapi.io/NoMeGustaEsteMundo/lossatelites`;
 const contenedor = document.getElementById("contenedor");
 const botonera = document.getElementById("botonera");
 let idDato;
@@ -11,30 +11,18 @@ let datoParaFormulario= {
     foto: ""
 }
 
-
+inicio();
 function inicio(){
         fetch(url)
                 .then(response => response.json())
                 .then(data => {
                     crearTabla(data);
                 })
-              /*  .catch(error => {
+                .catch(error => {
+                    alert(`Huston tenemos un problema, ${error}`);
                     console.error('Error al cargar el archivo JSON:', error);
-                });*/
+                });
 }
-
-try{
-    fetch(url)
-    .then(response => response.json())
-    .then(data => {
-        crearTabla(data);
-    })
-   
-
-}  catch (error){
-        alert(`Huston tenemos un problema, ${error}`);
-        console.log("fallo todo");
-    }
 
 
 function crearCelda(clase,dato){
