@@ -1,23 +1,40 @@
-const url = `https://647685309233e82dd53a1789.mockapi.io/NoMeGustaEsteMundo/lossatelites`;
+const url = `/647685309233e82dd53a1789.mockapioMeGustaEsteMudo/lossatelites`;
 const contenedor = document.getElementById("contenedor");
 const botonera = document.getElementById("botonera");
 let idDato;
-
-inicio();
-
-function inicio(){
-    fetch(url)
-            .then(response => response.json())
-            .then(data => {
-                crearTabla(data);
-            })
-            .catch(error => {
-                console.error('Error al cargar el archivo JSON:', error);
-            });
-
+let datoParaFormulario= {
+    id: new Date(),
+    nombre: "",
+    apellido: "",
+    calle: "",
+    numero: "",
+    foto: ""
 }
 
 
+function inicio(){
+        fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    crearTabla(data);
+                })
+              /*  .catch(error => {
+                    console.error('Error al cargar el archivo JSON:', error);
+                });*/
+}
+
+try{
+    fetch(url)
+    .then(response => response.json())
+    .then(data => {
+        crearTabla(data);
+    })
+   
+
+}  catch (error){
+        alert(`Huston tenemos un problema, ${error}`);
+        console.log("fallo todo");
+    }
 
 
 function crearCelda(clase,dato){
@@ -106,82 +123,43 @@ function buscarDato(idDato){
     fetch(`${url}/${idDato}`)
     .then(response => response.json())
     .then(data => {
-        console.log(data);
         contenedor.appendChild(crearTarjeta(data));
+        datoParaFormulario=data;
     })
     .catch(error => {
         console.error('Error al cargar el archivo JSON:', error);
     });
 }
 
-contenedor.addEventListener("click", (e)=>{
-        const elementoClickeado = e.target.closest(".fila");
-        const btn = e.target.closest("button");
-        if(elementoClickeado){
-            idDato = elementoClickeado.getAttribute("indice");
-            console.log(idDato);
-            borrarContenedor();
-            buscarDato(idDato);
-        } else if (btn) {
-            switch (btn.textContent){
-                case "ELIMINAR":
-                    eliminar(idDato);
-                break;
-                case "EDITAR":
-                    contenedor.appendChild(crearFormulario("GUARDAR"));
-                break;
-                case "GUARDAR":
-                    editar(idDato,leerFormulario());
-                break;
-                case "AGREGAR":
-                    const dato = leerFormulario();
-                    console.log(dato);
-                    crear(dato);
-                break;
-                default:
-                break;
-            }
 
-        }
-});
-
-botonera.addEventListener("click",(e)=>{
-    const btn=e.target.closest("button");
-    if(btn){
-        borrarContenedor();
-        contenedor.appendChild(crearFormulario("AGREGAR"));
-    }
-
-})
-
-function crearFormulario(btn){
+function crearFormulario(btn,datoForm){
     const formulario = document.createElement("div");
     formulario.classList.add("formulario");
     formulario.innerHTML=`
     <form>
         <div class="renglonFormulario">
             <label for="nombre">Nombre:</label>
-            <input type="text" id="nombre" name="nombre" required>
+            <input type="text" id="nombre" name="nombre" value="${datoForm.nombre}" required>
         </div>
     
         <div class="renglonFormulario">
             <label for="apellido">Apellido:</label>
-            <input type="text" id="apellido" name="apellido" required>
+            <input type="text" id="apellido" name="apellido"  value="${datoForm.apellido}" required>
         </div>
     
         <div class="renglonFormulario">
             <label for="calle">Calle:</label>
-            <input type="text" id="calle" name="calle" required>
+            <input type="text" id="calle" name="calle" value="${datoForm.calle}" required>
         </div>
     
         <div class="renglonFormulario">
             <label for="numero">Número:</label>
-            <input type="number" id="numero" name="numero" required>
+            <input type="number" id="numero" name="numero" value="${datoForm.numero}" required>
         </div>
     
         <div class="renglonFormulario">
             <label for="foto">Foto:</label>
-            <input type="text" id="foto" name="foto" required>
+            <input type="text" id="foto" name="foto" value="${datoForm.foto}" required>
         </div>
     <button class="btnForm">${btn}</button>
   </form>
@@ -190,16 +168,19 @@ function crearFormulario(btn){
     
 }
 
+
 function leerFormulario(){
     const input = contenedor.querySelectorAll("input");
-   const nuevoDato = {
+    console.log(input[0].value);
+    const nuevoDato = {
+        id: `${idDato}`,
         nombre: `${input[0].value}`,
         apellido: `${input[1].value}`,
         calle: `${input[2].value}`,
         numero: `${input[3].value}`,
-        foto: `${input[4].value}`,
+        foto: `${input[4].value}`
     }
-    console.log(nuevoDato);
+    
     return nuevoDato;
 }
 
@@ -235,5 +216,53 @@ function crear(dato) {
         console.error("Error al cargar el archivo JSON:", error);
       });
   }
-  
+  function recetearDatoFormulario(){
+    datoParaFormulario= {
+        id: new Date(),
+        nombre: "",
+        apellido: "",
+        calle: "",
+        numero: "",
+        foto: ""
+    }
+  }
+
+  contenedor.addEventListener("click", (e)=>{
+    e.preventDefault();
+    const elementoClickeado = e.target.closest(".fila");
+    const btn = e.target.closest("button");
+    if(elementoClickeado){
+        idDato = elementoClickeado.getAttribute("indice");
+        borrarContenedor();
+        buscarDato(idDato);
+    } else if (btn) {
+        switch (btn.textContent){
+            case "ELIMINAR":
+                eliminar(idDato);
+            break;
+            case "EDITAR":
+                contenedor.appendChild(crearFormulario("GUARDAR",datoParaFormulario));
+            break;
+            case "GUARDAR":
+                editar(idDato,leerFormulario());
+            break;
+            case "AGREGAR":
+                crear(leerFormulario());
+            break;
+            default:
+            break;
+        }
+
+    }
+});
+
+botonera.addEventListener("click",(e)=>{
+const btn=e.target.closest("button");
+if(btn){
+    borrarContenedor();
+    recetearDatoFormulario();
+    contenedor.appendChild(crearFormulario("AGREGAR",datoParaFormulario));
+}
+
+})
 
